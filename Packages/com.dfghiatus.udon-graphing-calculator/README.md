@@ -26,13 +26,25 @@ A Desmos-style graphing calculator for VRChat worlds, written in UdonSharp. All 
 
 ## Quick start
 
-1. **Import TextMesh Pro essentials** if you haven't yet: *Window → TextMeshPro → Import TMP Essential Resources*. (This project already has them.)
-2. Open your world scene.
-3. Run **Tools → Graphing Calculator → Build Calculator In Scene**.
-   This creates a `GraphingCalculator` object at (0, 0, 3), facing −Z (toward a player at the default spawn). Move or rotate the root object as you like. Everything scales with it.
+### Install with the VRChat Creator Companion (VCC)
+
+1. Open **https://dfghiatus.github.io/Udon-Graphing-Calculator/** and click **Add to VCC**.
+   Or, in VCC: *Settings → Packages → Add Repository* and paste
+   `https://dfghiatus.github.io/Udon-Graphing-Calculator/index.json`.
+2. In your world project, choose *Manage Project* and add **Udon Graphing Calculator**.
+
+The package is `com.dfghiatus.udon-graphing-calculator`. It requires VRChat Worlds SDK 3.10 or newer and Unity 2022.3.
+
+### Add it to a scene
+
+1. **Import TextMesh Pro essentials** if you haven't yet: *Window → TextMeshPro → Import TMP Essential Resources*.
+2. Either:
+   - drag `Packages/Udon Graphing Calculator/Runtime/GraphingCalculator.prefab` into your scene, or
+   - run **Tools → Graphing Calculator → Build Calculator In Scene**, which creates a fresh `GraphingCalculator` at (0, 0, 3).
+3. The calculator faces −Z, toward a player at the default spawn. Move or rotate the root object as you like; everything scales with it.
 4. Save the scene, then test with **Play** (ClientSim) or *Build & Test*.
 
-The builder also creates materials in `Assets/GraphingCalculator/Materials/`. Running it again creates a second calculator, so delete the old one first if you rebuild.
+Running the builder again creates a second calculator, so delete the old one first if you rebuild.
 
 The wall is about 3.1 m wide and 2.5 m tall:
 
@@ -41,6 +53,17 @@ The wall is about 3.1 m wide and 2.5 m tall:
 | Graph board | centre (0.5, 1.95) | 2.0 × 1.5 m |
 | Expression list | centre (−1.0, 1.95) | 0.9 × 1.5 m |
 | Keypad | centre (0.02, 0.82) | 2.95 × 0.64 m |
+| "How to use" info panel | centre (−2.45, 1.6), turned 25° inward | 1.1 × 1.86 m |
+| "How it works" info panel | centre (2.5, 1.6), turned 25° inward | 1.1 × 1.86 m |
+
+### Info panels
+
+Two floating panels sit beside the calculator:
+
+- **Left, "How to use":** what the calculator is, how to type, things to try, graph controls, and how sharing works. At the bottom is a **read-only text field with the GitHub URL**. VRChat worlds can't open a web browser, so players click the field and press Ctrl+C (desktop) to copy the link, or read it off the panel.
+- **Right, "How it works":** a plain-language explanation of the compile → evaluate → sample → draw pipeline, time-slicing and sync.
+
+They are plain world-space canvases with no scripts. Delete either one if you don't want it. To recreate them, select a calculator and run **Tools → Graphing Calculator → Add Info Panels To Selected Calculator**. The text lives in `GraphCalculatorBuilder.cs` (`HowToUseText`, `HowItWorksText`).
 
 ---
 
@@ -320,29 +343,61 @@ All shaders support single-pass stereo instancing for VR and clip to the board. 
 
 ## File layout
 
+The calculator ships as a VPM package. In this repository it lives at `Packages/com.dfghiatus.udon-graphing-calculator/`:
+
 ```
-Assets/GraphingCalculator/
+com.dfghiatus.udon-graphing-calculator/
+├── package.json                   VPM / UPM manifest (name, version, dependencies)
 ├── README.md                      this file
-├── Scripts/                       UdonSharp runtime (each .cs has a matching .asset program)
-│   ├── GraphCalculator.cs         controller: UI, input, sync, view, sliders, tables, undo
-│   ├── GCCompiler.cs              tokenizer, parser, classifier, bytecode compiler
-│   ├── GCEngine.cs                evaluator, calculus, regression, samplers, mesh/texture output
-│   └── CalcKey.cs                 forwards a UI event to GraphCalculator.OnKey
-├── Shaders/                       GraphGrid, GraphLine, GraphFill, GraphPoint, GraphImplicit
-├── Materials/                     created by the builder
+├── CHANGELOG.md
+├── LICENSE.md                     Apache-2.0
+├── Runtime/
+│   ├── DfgHiatus.GraphingCalculator.asmdef        runtime assembly
+│   ├── DfgHiatus.GraphingCalculator.USharp.asset  tells UdonSharp to compile that assembly
+│   ├── GraphingCalculator.prefab  ready-made calculator with info panels
+│   ├── Scripts/                   UdonSharp runtime (each .cs has a matching .asset program)
+│   │   ├── GraphCalculator.cs     controller: UI, input, sync, view, sliders, tables, undo
+│   │   ├── GCCompiler.cs          tokenizer, parser, classifier, bytecode compiler
+│   │   ├── GCEngine.cs            evaluator, calculus, regression, samplers, mesh/texture output
+│   │   └── CalcKey.cs             forwards a UI event to GraphCalculator.OnKey
+│   ├── Shaders/                   GraphGrid, GraphLine, GraphFill, GraphPoint, GraphImplicit
+│   └── Materials/                 used by the prefab and the builder
 └── Editor/
-    ├── GraphCalculatorBuilder.cs  Tools → Graphing Calculator → Build Calculator In Scene
-    ├── GCDevCommands.cs           development helper (see below)
-    └── GCDumpUdonNodes.cs         development helper (see below)
+    ├── DfgHiatus.GraphingCalculator.Editor.asmdef
+    └── GraphCalculatorBuilder.cs  Tools → Graphing Calculator menu (build, info panels)
 ```
+
+Repository-only files (not part of the package):
+
+```
+Assets/GraphingCalculatorDev/Editor/   development helpers (below)
+.github/workflows/release.yml          builds a release zip and publishes the VPM listing
+.github/scripts/build_listing.py       generates the VPM listing (index.json) from GitHub releases
+.github/vpm-listing.json               listing name, id, author and URL
+Website/index.html                     listing page with the "Add to VCC" button
+```
+
+### Releasing a new version
+
+1. Bump `version` in `package.json` and add a `CHANGELOG.md` entry. Commit and push.
+2. On GitHub, run the **Build Release** workflow (*Actions → Build Release → Run workflow*). It:
+   - zips the package folder as `com.dfghiatus.udon-graphing-calculator-<version>.zip`,
+   - creates a GitHub release tagged with the version, with the zip and `package.json` attached,
+   - rebuilds `index.json` from **all** releases and deploys it with the website to GitHub Pages.
+3. VCC users see the update the next time VCC refreshes the repository.
+
+**One-time setup:** in the repository's *Settings → Pages*, set **Source** to **GitHub Actions**. Without that, the deploy step fails.
+
+The listing can also be rebuilt on its own with the **Build VPM Listing** workflow, for example after editing or deleting a release.
 
 ### Development helpers (safe to delete)
 
-These are editor-only and never included in a world build.
+These live in `Assets/GraphingCalculatorDev/`, are editor-only, and aren't part of the package or a world build.
 
 - **GCDevCommands.cs** watches `Temp/gc_cmd.txt` for commands:
   - `test`: runs about 120 test expressions in C# and writes results to `Temp/gc_out.txt`.
   - `build`: runs the builder.
+  - `infopanels`: adds or replaces the info panels inside the package prefab.
   - `play` / `stop`: enter or leave Play mode.
   - `shot`: renders the calculator to `Temp/gc_shot.png`.
   - `key …`: presses keys on the running calculator.
@@ -405,23 +460,16 @@ These are editor-only and never included in a world build.
 ## Project status
 
 ### Verified
-- All four runtime scripts compile with UdonSharp, with no errors.
-- The C# test suite passes: arithmetic, functions, definitions, user functions and derivatives, sums, products, integrals (including infinite bounds), lists and broadcasting, piecewise, complex mode, degree mode, every graph type, tables, regression, and error messages.
-- In ClientSim Play mode the calculator builds, compiles and runs with no Udon exceptions. The default graphs (`y=sin(x)` and `y=ax^2-3` with slider `a=0.5`) render correctly with grid, axes, labels, view buttons, settings bar and keypad.
+- The runtime scripts compile with UdonSharp from the package assembly (`DfgHiatus.GraphingCalculator`), with no errors.
+- The C# test suite (about 120 expressions) passes: arithmetic, functions, definitions, user functions and derivatives, sums, products, integrals (including infinite bounds), lists and broadcasting, piecewise, complex mode, degree mode, every graph type, tables, regression, and error messages.
+- In ClientSim Play mode the calculator ran with no Udon exceptions, and the default graphs rendered correctly with grid, axes, labels, view buttons, settings bar and keypad.
+- The info panels render beside the calculator in the prefab and fit their text. The URL field is read-only.
+- The VPM listing generator produces a valid `index.json` (tested against a simulated release built from this package).
 
 ### Not yet verified
-- **The expression panel's text** wasn't visible from the test camera angle.
-- **Interactive input** (keys, sliders, panning, the table editor, the keyboard input field): wired by the builder but not yet exercised by hand.
+- **Interactive input** (keys, sliders, panning, the table editor, the keyboard input field) and the expression panel's text in Play mode.
+- **Copying from the read-only URL field** inside the VRChat client.
 - **Multiplayer sync** with two or more players.
 - **Real-world performance** on PC VR and Quest. The sampling settings above are estimates.
-- **The last edits**: a `devKey` / `DevPress` hook in `GraphCalculator.cs` and the `shot` / `key` dev commands haven't been recompiled by UdonSharp yet.
-
-### Current editor state
-The calculator was built into `VRCDefaultWorldScene` but the scene has **not been saved**. Unity may still be in Play mode.
-
-Suggested next steps:
-1. Leave Play mode.
-2. Save the scene, or undo the build.
-3. Let UdonSharp recompile, and test the UI by hand in ClientSim.
-4. Test on Quest.
-5. Delete the development helpers before release if you don't want them.
+- **The GitHub workflows** haven't run on GitHub yet. Pages must be enabled first (see *Releasing a new version*).
+- **Installing through VCC** from the published listing.

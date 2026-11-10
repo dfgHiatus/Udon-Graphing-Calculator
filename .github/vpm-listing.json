@@ -1,0 +1,13 @@
+{
+  "name": "dfgHiatus VPM Listing",
+  "id": "com.dfghiatus.vpm",
+  "author": "dfgHiatus",
+  "url": "https://dfghiatus.github.io/Udon-Graphing-Calculator/index.json",
+  "githubRepo": "dfgHiatus/Udon-Graphing-Calculator",
+  "packages": [
+    {
+      "id": "com.dfghiatus.udon-graphing-calculator",
+      "path": "Packages/com.dfghiatus.udon-graphing-calculator"
+    }
+  ]
+}

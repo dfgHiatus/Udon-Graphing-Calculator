@@ -1,0 +1,26 @@
+{
+    "name": "DfgHiatus.GraphingCalculator.Editor",
+    "rootNamespace": "GraphCalc.EditorTools",
+    "references": [
+        "DfgHiatus.GraphingCalculator",
+        "UdonSharp.Editor",
+        "UdonSharp.Runtime",
+        "VRC.Udon",
+        "VRC.Udon.Editor",
+        "VRC.SDKBase",
+        "VRC.SDK3",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

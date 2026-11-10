@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.dfghiatus.udon-graphing-calculator": {
+      "version": "file:com.dfghiatus.udon-graphing-calculator",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.textmeshpro": "3.0.6"
+      }
+    },
     "com.llealloo.audiolink": {
       "version": "file:com.llealloo.audiolink",
       "depth": 0,

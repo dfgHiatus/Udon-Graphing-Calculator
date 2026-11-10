@@ -1,0 +1,32 @@
+{
+  "name": "com.dfghiatus.udon-graphing-calculator",
+  "displayName": "Udon Graphing Calculator",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "description": "A Desmos-style graphing calculator for VRChat worlds, written in UdonSharp. Explicit, implicit, polar and parametric graphs, inequalities, sliders, lists, tables, regression, calculus and complex numbers, with networked multiplayer editing. Add it with Tools > Graphing Calculator > Build Calculator In Scene, or drag Runtime/GraphingCalculator.prefab into your scene.",
+  "author": {
+    "name": "dfgHiatus",
+    "url": "https://github.com/dfgHiatus"
+  },
+  "license": "Apache-2.0",
+  "documentationUrl": "https://github.com/dfgHiatus/Udon-Graphing-Calculator",
+  "changelogUrl": "https://github.com/dfgHiatus/Udon-Graphing-Calculator/blob/master/Packages/com.dfghiatus.udon-graphing-calculator/CHANGELOG.md",
+  "keywords": [
+    "vrchat",
+    "udon",
+    "udonsharp",
+    "graphing",
+    "calculator",
+    "math",
+    "desmos"
+  ],
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+  },
+  "vpmDependencies": {
+    "com.vrchat.worlds": ">=3.10.0"
+  },
+  "legacyFolders": {
+    "Assets\\GraphingCalculator": ""
+  }
+}

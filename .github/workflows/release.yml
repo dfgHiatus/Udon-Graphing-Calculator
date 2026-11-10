@@ -1,0 +1,56 @@
+name: Build Release
+
+# Zips the VPM package, creates a GitHub release named after package.json's version
+# (with the zip and package.json attached), then rebuilds and deploys the VPM listing.
+# Run it from Actions > Build Release > Run workflow after bumping the version.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  PACKAGE_NAME: com.dfghiatus.udon-graphing-calculator
+  PACKAGE_PATH: Packages/com.dfghiatus.udon-graphing-calculator
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        run: echo "version=$(jq -r .version "$PACKAGE_PATH/package.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Stop if this version is already released
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.version.outputs.version }}" > /dev/null 2>&1; then
+            echo "::error::Release ${{ steps.version.outputs.version }} already exists. Bump the version in package.json."
+            exit 1
+          fi
+
+      - name: Zip package
+        run: |
+          cd "$PACKAGE_PATH"
+          zip -r -X "$GITHUB_WORKSPACE/$PACKAGE_NAME-${{ steps.version.outputs.version }}.zip" .
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Udon Graphing Calculator ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.version }}.zip
+            ${{ env.PACKAGE_PATH }}/package.json
+
+  # Releases created with the workflow token don't trigger other workflows, so call the listing build directly.
+  listing:
+    needs: release
+    uses: ./.github/workflows/build-listing.yml

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{LISTING_NAME}}</title>
+<style>
+  :root { --bg: #f6f7f9; --fg: #1d2330; --muted: #5b6475; --card: #ffffff; --accent: #2d70b3; --border: #dde1e8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14171d; --fg: #e8ebf1; --muted: #9aa3b4; --card: #1d2129; --accent: #5b9be0; --border: #2f3542; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 16px; }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; }
+  p.lead { margin: 0 0 28px; color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  a.button, button { display: inline-block; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  button.secondary { background: transparent; color: var(--accent); }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: 0.9em; word-break: break-all; }
+  .url { display: block; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 8px; border-top: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; border-top: none; }
+  td:nth-child(3) { color: var(--muted); font-size: 0.95em; }
+  @media (max-width: 640px) { td:nth-child(3), th:nth-child(3) { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>{{LISTING_NAME}}</h1>
+  <p class="lead">VRChat Creator Companion packages by dfgHiatus, including the Udon Graphing Calculator.</p>
+
+  <section class="card">
+    <h2 style="margin-top:0">Add to the Creator Companion</h2>
+    <p>Click the button with VCC installed, or copy the listing URL into <i>VCC → Settings → Packages → Add Repository</i>.</p>
+    <code class="url" id="listing-url">{{LISTING_URL}}</code>
+    <div class="actions">
+      <a class="button" href="{{VCC_URL}}">Add to VCC</a>
+      <button class="secondary" id="copy">Copy listing URL</button>
+      <a class="button" style="background:transparent;color:var(--accent)" href="{{REPO_URL}}">Source on GitHub</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 style="margin-top:0">Packages</h2>
+    <table>
+      <thead><tr><th>Package</th><th>Versions</th><th>Description</th><th>Download</th></tr></thead>
+      <tbody>
+{{PACKAGE_ROWS}}
+      </tbody>
+    </table>
+  </section>
+</main>
+<script>
+  document.getElementById("copy").addEventListener("click", function () {
+    var text = document.getElementById("listing-url").textContent;
+    var btn = this;
+    navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = "Copied!";
+      setTimeout(function () { btn.textContent = "Copy listing URL"; }, 1500);
+    });
+  });
+</script>
+</body>
+</html>

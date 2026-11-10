@@ -22,7 +22,10 @@ namespace GraphCalc.EditorTools
     /// </summary>
     public static class GraphCalculatorBuilder
     {
-        const string RootDir = "Assets/GraphingCalculator";
+        public const string PackageDir = "Packages/com.dfghiatus.udon-graphing-calculator";
+        const string RootDir = PackageDir + "/Runtime";
+        public const string PrefabPath = RootDir + "/GraphingCalculator.prefab";
+        public const string ProjectUrl = "https://github.com/dfgHiatus/Udon-Graphing-Calculator";
         const string MatDir = RootDir + "/Materials";
         const int SLOTS = 16;
         const int VROWS = 7;
@@ -91,6 +94,7 @@ namespace GraphCalc.EditorTools
             BuildDisplay(root.transform, engine, matGrid, matLine, matFill, matPoint, matImplicit);
             BuildExpressionPanel(root.transform);
             BuildKeypad(root.transform);
+            BuildInfoPanels(root.transform);
 
             EditorUtility.SetDirty(calc);
             EditorUtility.SetDirty(engine);
@@ -576,6 +580,159 @@ namespace GraphCalc.EditorTools
                 MakeButton(panel.transform, "TblBtn" + i, 20 + i * (bw + 8), by, bw, 70, labels[i], 24, ColKey, ColText, keys[i]);
             panel.gameObject.SetActive(false);
         }
+
+        // ------------------------------------------------------------------ floating info panels
+        const string InfoLeftName = "InfoPanel_HowToUse";
+        const string InfoRightName = "InfoPanel_HowItWorks";
+
+        /// <summary>Adds (or replaces) the two floating info panels on the selected calculator.</summary>
+        [MenuItem("Tools/Graphing Calculator/Add Info Panels To Selected Calculator")]
+        public static void AddInfoPanelsToSelection()
+        {
+            GameObject go = Selection.activeGameObject;
+            GraphCalculator gc = go != null ? go.GetComponentInParent<GraphCalculator>() : null;
+            if (gc == null)
+            {
+                EditorUtility.DisplayDialog("Graphing Calculator", "Select a GraphingCalculator object in the scene first.", "OK");
+                return;
+            }
+            if (!PrepareFonts()) return;
+            Undo.RegisterFullObjectHierarchyUndo(gc.gameObject, "Add info panels");
+            BuildInfoPanels(gc.transform);
+            EditorUtility.SetDirty(gc.gameObject);
+        }
+
+        /// <summary>Adds (or replaces) the info panels inside the package prefab.</summary>
+        [MenuItem("Tools/Graphing Calculator/Add Info Panels To Prefab")]
+        public static void AddInfoPanelsToPrefab()
+        {
+            if (!PrepareFonts()) return;
+            GameObject contents = PrefabUtility.LoadPrefabContents(PrefabPath);
+            if (contents == null) { Debug.LogError("[GraphingCalculator] Prefab not found: " + PrefabPath); return; }
+            BuildInfoPanels(contents.transform);
+            PrefabUtility.SaveAsPrefabAsset(contents, PrefabPath);
+            PrefabUtility.UnloadPrefabContents(contents);
+            Debug.Log("[GraphingCalculator] Info panels added to " + PrefabPath);
+        }
+
+        static bool PrepareFonts()
+        {
+            if (TMP_Settings.instance == null || TMP_Settings.defaultFontAsset == null)
+            {
+                EditorUtility.DisplayDialog("Graphing Calculator",
+                    "TextMesh Pro essentials are missing.\n\nUse Window > TextMeshPro > Import TMP Essential Resources, then run this again.", "OK");
+                return false;
+            }
+            font = TMP_Settings.defaultFontAsset;
+            uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            knobSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+            bgSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
+            return true;
+        }
+
+        static void BuildInfoPanels(Transform root)
+        {
+            foreach (string n in new[] { InfoLeftName, InfoRightName })
+            {
+                Transform old = root.Find(n);
+                if (old != null) Object.DestroyImmediate(old.gameObject);
+            }
+
+            // left: what it is + how to use, with a copyable link
+            GameObject left = MakeInfoCanvas(root, InfoLeftName, new Vector3(-2.45f, 1.6f, -0.35f), -25f);
+            TextMeshProUGUI lt = MakeText(left.transform, "Text", 50, 40, 1000, 1640, HowToUseText, 34, new Color(0.93f, 0.94f, 0.96f), TextAlignmentOptions.TopLeft, true);
+            lt.lineSpacing = 6;
+            lt.overflowMode = TextOverflowModes.Truncate;
+            MakeText(left.transform, "LinkLabel", 50, 1700, 1000, 40, "<b>Source code & docs</b>  <color=#9fb4d6>(click the box, then Ctrl+C to copy)</color>", 24, new Color(0.93f, 0.94f, 0.96f), TextAlignmentOptions.Left, false);
+            MakeUrlField(left.transform, 50, 1745, 1000, 70, ProjectUrl);
+
+            // right: how it works
+            GameObject right = MakeInfoCanvas(root, InfoRightName, new Vector3(2.5f, 1.6f, -0.35f), 25f);
+            TextMeshProUGUI rt = MakeText(right.transform, "Text", 50, 40, 1000, 1780, HowItWorksText, 28, new Color(0.93f, 0.94f, 0.96f), TextAlignmentOptions.TopLeft, true);
+            rt.lineSpacing = 4;
+            rt.overflowMode = TextOverflowModes.Truncate;
+        }
+
+        static GameObject MakeInfoCanvas(Transform root, string name, Vector3 pos, float yaw)
+        {
+            const float W = 1100, H = 1860;
+            GameObject canvas = MakeCanvas(root, name, pos, W, H, 0.001f);
+            canvas.transform.localRotation = Quaternion.Euler(0, yaw, 0);
+            Image bg = MakeImage(canvas.transform, "Background", 0, 0, W, H, new Color(0.13f, 0.15f, 0.19f, 0.92f), uiSprite, true);
+            Stretch(bg.rectTransform, 0);
+            Image accent = MakeImage(canvas.transform, "Accent", 0, 0, W, 10, new Color(0.18f, 0.44f, 0.70f, 1f), null, false);
+            accent.rectTransform.anchorMin = new Vector2(0, 1);
+            accent.rectTransform.anchorMax = new Vector2(1, 1);
+            accent.rectTransform.offsetMin = new Vector2(0, -10);
+            accent.rectTransform.offsetMax = Vector2.zero;
+            return canvas;
+        }
+
+        static void MakeUrlField(Transform parent, float x, float y, float w, float h, string url)
+        {
+            TMP_DefaultControls.Resources tres = new TMP_DefaultControls.Resources();
+            tres.standard = uiSprite;
+            tres.inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd");
+            GameObject inp = TMP_DefaultControls.CreateInputField(tres);
+            inp.name = "ProjectUrl";
+            Rect(inp, parent, x, y, w, h);
+            TMP_InputField field = inp.GetComponent<TMP_InputField>();
+            field.lineType = TMP_InputField.LineType.SingleLine;
+            field.readOnly = true;          // selectable and copyable, but not editable
+            field.richText = false;
+            field.text = url;
+            field.selectionColor = new Color(0.55f, 0.75f, 1f, 0.6f);
+            if (field.textComponent != null)
+            {
+                field.textComponent.font = font;
+                field.textComponent.fontSize = 30;
+                field.textComponent.color = new Color(0.10f, 0.33f, 0.62f);
+                field.textComponent.alignment = TextAlignmentOptions.MidlineLeft;
+            }
+            if (field.placeholder != null)
+            {
+                TextMeshProUGUI ph = field.placeholder as TextMeshProUGUI;
+                if (ph != null) { ph.font = font; ph.text = ""; }
+            }
+            Navigation nav = field.navigation; nav.mode = Navigation.Mode.None; field.navigation = nav;
+        }
+
+        const string HowToUseText =
+            "<size=150%><b>Udon Graphing Calculator</b></size>\n" +
+            "A Desmos-style graphing calculator that runs entirely inside VRChat. Type equations, drag sliders and explore graphs together — everyone in the instance sees the same board.\n\n" +
+            "<b><color=#8fb8ff>Getting started</color></b>\n" +
+            "• Tap a row in the <b>Expressions</b> list to select it, then type on the keypad below the board.\n" +
+            "• <b>123</b>, <b>abc</b> and <b>func</b> switch keypad pages. Or tap <i>Tap to type with keyboard</i> to use VRChat's keyboard.\n" +
+            "• <b>Enter</b> adds a row, <b>DEL</b> on an empty row removes it, <b>↑ ↓</b> move between rows.\n" +
+            "• The coloured circle shows/hides a graph; <b>color</b> changes its colour.\n\n" +
+            "<b><color=#8fb8ff>Things to try</color></b>\n" +
+            "<color=#ffd27f>y = x^2</color>   <color=#ffd27f>x^2 + y^2 = 9</color>   <color=#ffd27f>y < sin(x)</color>\n" +
+            "<color=#ffd27f>r = 1 + cos(θ)</color>   <color=#ffd27f>(cos(t), sin(t))</color>\n" +
+            "<color=#ffd27f>a = 2</color>  → a slider; use <i>a</i> in other rows\n" +
+            "<color=#ffd27f>f(x) = x^3</color>, then <color=#ffd27f>y = f'(x)</color>\n" +
+            "<color=#ffd27f>∫_0^1 x^2 dx</color>   <color=#ffd27f>Σ_{n=1}^{10} n</color>   <color=#ffd27f>mean([1...10])</color>\n" +
+            "<b>+ table</b>, then <color=#ffd27f>y_1 ~ m x_1 + b</color> for a best-fit line\n\n" +
+            "<b><color=#8fb8ff>Graph controls</color></b>\n" +
+            "Drag the graph to pan · <b>+ / −</b> zoom · <b>⌂</b> reset view\n" +
+            "<b>C</b> complex numbers · <b>RAD/DEG</b> angle mode · <b>Grid</b> · <b>Undo / Redo</b>\n\n" +
+            "<b><color=#8fb8ff>Sharing</color></b>\n" +
+            "Whoever presses a key takes control of the board. <b>Lock</b> keeps editing to the current editor until they unlock it.";
+
+        const string HowItWorksText =
+            "<size=150%><b>How it works</b></size>\n" +
+            "All of the math — parsing, evaluation, calculus and graph sampling — runs in <b>Udon</b>, VRChat's sandboxed scripting language. Nothing is sent to a server.\n\n" +
+            "<b><color=#8fb8ff>1. Compile</color></b>\n" +
+            "Each expression is split into tokens, parsed into a syntax tree and classified: variable, function, curve, region, point, list, regression or table. It is then compiled to compact <b>bytecode</b>. Functions are inlined and definitions are ordered by what depends on what.\n\n" +
+            "<b><color=#8fb8ff>2. Evaluate</color></b>\n" +
+            "A small stack machine runs the bytecode on <b>256 points at once</b>. Udon is slow per instruction, so working on whole arrays hides most of that cost. There are real and complex versions of every operation. Calculus is numerical: 5-point derivatives, Gauss–Legendre integrals and direct sums.\n\n" +
+            "<b><color=#8fb8ff>3. Sample</color></b>\n" +
+            "Curves start with evenly spaced points, then add more where the curve bends or gets steep, and break the line at asymptotes. Implicit equations like x² + y² = 9 are sampled on a grid and turned into a distance field stored in a texture.\n\n" +
+            "<b><color=#8fb8ff>4. Draw</color></b>\n" +
+            "Udon builds meshes for lines, shaded regions and points. Tiny shaders only draw them: smooth lines, dashes for < and >, shading, and the zero-contour of the distance texture. Panning moves the existing meshes instantly while new samples are computed in the background.\n\n" +
+            "<b><color=#8fb8ff>5. Stay smooth</color></b>\n" +
+            "Work is <b>time-sliced</b>: only a few milliseconds per frame, so the frame rate stays steady and graphs sharpen over a moment. Quest uses smaller budgets and fewer samples.\n\n" +
+            "<b><color=#8fb8ff>6. Sync</color></b>\n" +
+            "Only the expression text, slider ranges, view and settings travel over the network. Every player computes the graphs locally, and animated sliders follow the shared server clock so they stay in step.";
 
         // ------------------------------------------------------------------ keypad
         static void BuildKeypad(Transform root)

@@ -31,6 +31,7 @@ namespace GraphCalc.EditorTools
             {
                 if (cmd == "test") File.WriteAllText(OutPath, RunTests());
                 else if (cmd == "build") { GraphCalculatorBuilder.BuildInScene(); File.WriteAllText(OutPath, "built"); }
+                else if (cmd == "infopanels") { GraphCalculatorBuilder.AddInfoPanelsToPrefab(); File.WriteAllText(OutPath, "infopanels"); }
                 else if (cmd == "play") { EditorApplication.isPlaying = true; File.WriteAllText(OutPath, "playing"); }
                 else if (cmd == "stop") { EditorApplication.isPlaying = false; File.WriteAllText(OutPath, "stopped"); }
                 else if (cmd.StartsWith("shot")) { Shot(cmd); File.WriteAllText(OutPath, "shot"); }
@@ -47,6 +48,8 @@ namespace GraphCalc.EditorTools
         {
             GameObject root = GameObject.Find("GraphingCalculator");
             if (root == null) return;
+            foreach (TMPro.TMP_Text t in root.GetComponentsInChildren<TMPro.TMP_Text>(true)) t.ForceMeshUpdate(true, true);
+            Canvas.ForceUpdateCanvases();
             string[] p = cmd.Split(' ');
             float cx = 0.02f, cy = 1.55f, w = 3.2f;
             if (p.Length >= 4) { cx = float.Parse(p[1]); cy = float.Parse(p[2]); w = float.Parse(p[3]); }

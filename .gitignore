@@ -81,3 +81,9 @@ crashlytics-build.properties
 # VRWorldToolkit build reports
 /[Aa]ssets/_LastBuild/
 /[Aa]ssets/_LastBuild.meta
+
+# The calculator package itself is tracked
+!/Packages/com.dfghiatus.udon-graphing-calculator/
+
+# Python bytecode
+__pycache__/
