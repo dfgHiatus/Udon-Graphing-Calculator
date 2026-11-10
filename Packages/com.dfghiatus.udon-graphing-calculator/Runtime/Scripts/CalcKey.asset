@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: GraphCalc.GraphCalculator, Assembly-CSharp
+      Data: GraphCalc.GraphCalculator, DfgHiatus.GraphingCalculator
     - Name: 
       Entry: 8
       Data: 

@@ -91,6 +91,8 @@ namespace GraphCalc.EditorTools
             Material backMat = EnsureLitMaterial("GC_Backboard", new Color(0.22f, 0.24f, 0.27f));
             back.GetComponent<MeshRenderer>().sharedMaterial = backMat;
 
+            BuildLogo(root.transform);
+
             BuildDisplay(root.transform, engine, matGrid, matLine, matFill, matPoint, matImplicit);
             BuildExpressionPanel(root.transform);
             BuildKeypad(root.transform);
@@ -179,6 +181,56 @@ namespace GraphCalc.EditorTools
             }
             else m.shader = sh;
             m.enableInstancing = false;
+            return m;
+        }
+
+        // ------------------------------------------------------------------ logo
+        const string LogoTexturePath = RootDir + "/Textures/tub.png";
+
+        /// <summary>
+        /// Small logo plane on the front of the backboard, bottom-right (below the keypad's right edge).
+        /// Matches the "Plane" object in GraphingCalculator.prefab.
+        /// </summary>
+        static void BuildLogo(Transform root)
+        {
+            Material logoMat = EnsureLogoMaterial();
+            if (logoMat == null) return;
+            GameObject logo = GameObject.CreatePrimitive(PrimitiveType.Plane); // includes a MeshCollider, like the prefab
+            logo.name = "Logo";
+            logo.transform.SetParent(root, false);
+            logo.transform.localPosition = new Vector3(1.448f, 0.406f, 0.0096f);
+            logo.transform.localRotation = new Quaternion(0f, 0.7071068f, -0.7071068f, 0f); // faces -Z, upright
+            logo.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);                    // 0.2 m x 0.2 m
+            logo.GetComponent<MeshRenderer>().sharedMaterial = logoMat;
+        }
+
+        /// <summary>Uses Materials/GC_Logo.mat; recreates it (Standard, cutout, tub.png) if it was deleted.</summary>
+        static Material EnsureLogoMaterial()
+        {
+            string path = MatDir + "/GC_Logo.mat";
+            Material m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m != null) return m;
+            Texture2D tex = AssetDatabase.LoadAssetAtPath<Texture2D>(LogoTexturePath);
+            if (tex == null)
+            {
+                Debug.LogWarning("[GraphingCalculator] Logo texture not found at " + LogoTexturePath + "; skipping the logo.");
+                return null;
+            }
+            if (!AssetDatabase.IsValidFolder(MatDir)) AssetDatabase.CreateFolder(RootDir, "Materials");
+            m = new Material(Shader.Find("Standard"));
+            m.mainTexture = tex;
+            // Standard shader "Cutout" rendering mode
+            m.SetFloat("_Mode", 1f);
+            m.SetFloat("_Cutoff", 0.2f);
+            m.SetOverrideTag("RenderType", "TransparentCutout");
+            m.SetInt("_SrcBlend", (int)BlendMode.One);
+            m.SetInt("_DstBlend", (int)BlendMode.Zero);
+            m.SetInt("_ZWrite", 1);
+            m.EnableKeyword("_ALPHATEST_ON");
+            m.DisableKeyword("_ALPHABLEND_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.renderQueue = (int)RenderQueue.AlphaTest;
+            AssetDatabase.CreateAsset(m, path);
             return m;
         }
 
@@ -699,7 +751,7 @@ namespace GraphCalc.EditorTools
 
         const string HowToUseText =
             "<size=150%><b>Udon Graphing Calculator</b></size>\n" +
-            "A Desmos-style graphing calculator that runs entirely inside VRChat. Type equations, drag sliders and explore graphs together — everyone in the instance sees the same board.\n\n" +
+            "A Desmos-style graphing calculator that runs entirely inside VRChat. Type equations, drag sliders and explore graphs together. Everyone in the instance sees the same board.\n\n" +
             "<b><color=#8fb8ff>Getting started</color></b>\n" +
             "• Tap a row in the <b>Expressions</b> list to select it, then type on the keypad below the board.\n" +
             "• <b>123</b>, <b>abc</b> and <b>func</b> switch keypad pages. Or tap <i>Tap to type with keyboard</i> to use VRChat's keyboard.\n" +
@@ -720,17 +772,17 @@ namespace GraphCalc.EditorTools
 
         const string HowItWorksText =
             "<size=150%><b>How it works</b></size>\n" +
-            "All of the math — parsing, evaluation, calculus and graph sampling — runs in <b>Udon</b>, VRChat's sandboxed scripting language. Nothing is sent to a server.\n\n" +
+            "All of the math (parsing, evaluation, calculus and graph sampling) runs in Udon, VRChat's sandboxed scripting language.\n\n" +
             "<b><color=#8fb8ff>1. Compile</color></b>\n" +
-            "Each expression is split into tokens, parsed into a syntax tree and classified: variable, function, curve, region, point, list, regression or table. It is then compiled to compact <b>bytecode</b>. Functions are inlined and definitions are ordered by what depends on what.\n\n" +
+            "Each expression is split into tokens, parsed into a syntax tree and classified: variable, function, curve, region, point, list, regression or table. It is then compiled to compact bytecode. Functions are inlined and definitions are ordered by what depends on what.\n\n" +
             "<b><color=#8fb8ff>2. Evaluate</color></b>\n" +
-            "A small stack machine runs the bytecode on <b>256 points at once</b>. Udon is slow per instruction, so working on whole arrays hides most of that cost. There are real and complex versions of every operation. Calculus is numerical: 5-point derivatives, Gauss–Legendre integrals and direct sums.\n\n" +
+            "A small stack machine runs the bytecode on 256 points at once. Udon is slow per instruction, so working on whole arrays hides most of that cost. There are real and complex versions of every operation. Calculus is numerical: 5-point derivatives, Gauss–Legendre integrals and direct sums.\n\n" +
             "<b><color=#8fb8ff>3. Sample</color></b>\n" +
             "Curves start with evenly spaced points, then add more where the curve bends or gets steep, and break the line at asymptotes. Implicit equations like x² + y² = 9 are sampled on a grid and turned into a distance field stored in a texture.\n\n" +
             "<b><color=#8fb8ff>4. Draw</color></b>\n" +
             "Udon builds meshes for lines, shaded regions and points. Tiny shaders only draw them: smooth lines, dashes for < and >, shading, and the zero-contour of the distance texture. Panning moves the existing meshes instantly while new samples are computed in the background.\n\n" +
             "<b><color=#8fb8ff>5. Stay smooth</color></b>\n" +
-            "Work is <b>time-sliced</b>: only a few milliseconds per frame, so the frame rate stays steady and graphs sharpen over a moment. Quest uses smaller budgets and fewer samples.\n\n" +
+            "Work is time-sliced: only a few milliseconds per frame, so the frame rate stays steady and graphs sharpen over a moment. Quest uses smaller budgets and fewer samples.\n\n" +
             "<b><color=#8fb8ff>6. Sync</color></b>\n" +
             "Only the expression text, slider ranges, view and settings travel over the network. Every player computes the graphs locally, and animated sliders follow the shared server clock so they stay in step.";
 

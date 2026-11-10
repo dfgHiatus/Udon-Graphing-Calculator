@@ -12402,30 +12402,28 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<size=150%><b>How it works</b></size>\nAll of the math \u2014 parsing,
-    evaluation, calculus and graph sampling \u2014 runs in <b>Udon</b>, VRChat's
-    sandboxed scripting language. Nothing is sent to a server.\n\n<b><color=#8fb8ff>1.
+  m_text: "<size=150%><b>How it works</b></size>\nAll of the math (parsing, evaluation,
+    calculus and graph sampling) runs in Udon, VRChat's sandboxed scripting language.\n\n<b><color=#8fb8ff>1.
     Compile</color></b>\nEach expression is split into tokens, parsed into a syntax
     tree and classified: variable, function, curve, region, point, list, regression
-    or table. It is then compiled to compact <b>bytecode</b>. Functions are inlined
-    and definitions are ordered by what depends on what.\n\n<b><color=#8fb8ff>2.
-    Evaluate</color></b>\nA small stack machine runs the bytecode on <b>256 points
-    at once</b>. Udon is slow per instruction, so working on whole arrays hides most
-    of that cost. There are real and complex versions of every operation. Calculus
-    is numerical: 5-point derivatives, Gauss\u2013Legendre integrals and direct sums.\n\n<b><color=#8fb8ff>3.
-    Sample</color></b>\nCurves start with evenly spaced points, then add more where
-    the curve bends or gets steep, and break the line at asymptotes. Implicit equations
-    like x\xB2 + y\xB2 = 9 are sampled on a grid and turned into a distance field
-    stored in a texture.\n\n<b><color=#8fb8ff>4. Draw</color></b>\nUdon builds meshes
-    for lines, shaded regions and points. Tiny shaders only draw them: smooth lines,
-    dashes for < and >, shading, and the zero-contour of the distance texture. Panning
-    moves the existing meshes instantly while new samples are computed in the background.\n\n<b><color=#8fb8ff>5.
-    Stay smooth</color></b>\nWork is <b>time-sliced</b>: only a few milliseconds
-    per frame, so the frame rate stays steady and graphs sharpen over a moment. Quest
-    uses smaller budgets and fewer samples.\n\n<b><color=#8fb8ff>6. Sync</color></b>\nOnly
-    the expression text, slider ranges, view and settings travel over the network.
-    Every player computes the graphs locally, and animated sliders follow the shared
-    server clock so they stay in step."
+    or table. It is then compiled to compact bytecode. Functions are inlined and
+    definitions are ordered by what depends on what.\n\n<b><color=#8fb8ff>2. Evaluate</color></b>\nA
+    small stack machine runs the bytecode on 256 points at once. Udon is slow per
+    instruction, so working on whole arrays hides most of that cost. There are real
+    and complex versions of every operation. Calculus is numerical: 5-point derivatives,
+    Gauss\u2013Legendre integrals and direct sums.\n\n<b><color=#8fb8ff>3. Sample</color></b>\nCurves
+    start with evenly spaced points, then add more where the curve bends or gets
+    steep, and break the line at asymptotes. Implicit equations like x\xB2 + y\xB2
+    = 9 are sampled on a grid and turned into a distance field stored in a texture.\n\n<b><color=#8fb8ff>4.
+    Draw</color></b>\nUdon builds meshes for lines, shaded regions and points. Tiny
+    shaders only draw them: smooth lines, dashes for < and >, shading, and the zero-contour
+    of the distance texture. Panning moves the existing meshes instantly while new
+    samples are computed in the background.\n\n<b><color=#8fb8ff>5. Stay smooth</color></b>\nWork
+    is time-sliced: only a few milliseconds per frame, so the frame rate stays steady
+    and graphs sharpen over a moment. Quest uses smaller budgets and fewer samples.\n\n<b><color=#8fb8ff>6.
+    Sync</color></b>\nOnly the expression text, slider ranges, view and settings
+    travel over the network. Every player computes the graphs locally, and animated
+    sliders follow the shared server clock so they stay in step."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12434,7 +12432,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294308077
   m_fontColor: {r: 0.93, g: 0.94, b: 0.96, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -12447,7 +12445,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -20224,7 +20222,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -30132,6 +30130,7 @@ Transform:
   m_Children:
   - {fileID: 7026266996852294024}
   - {fileID: 5434302987492725614}
+  - {fileID: 6961291316266425590}
   - {fileID: 3032836584466603650}
   - {fileID: 7622274412589523138}
   - {fileID: 4405593382922735881}
@@ -33324,19 +33323,18 @@ MonoBehaviour:
       m_Calls: []
   m_text: "<size=150%><b>Udon Graphing Calculator</b></size>\nA Desmos-style graphing
     calculator that runs entirely inside VRChat. Type equations, drag sliders and
-    explore graphs together \u2014 everyone in the instance sees the same board.\n\n<b><color=#8fb8ff>Getting
-    started</color></b>\n\u2022 Tap a row in the <b>Expressions</b> list to select
-    it, then type on the keypad below the board.\n\u2022 <b>123</b>, <b>abc</b> and
-    <b>func</b> switch keypad pages. Or tap <i>Tap to type with keyboard</i> to use
-    VRChat's keyboard.\n\u2022 <b>Enter</b> adds a row, <b>DEL</b> on an empty row
-    removes it, <b>\u2191 \u2193</b> move between rows.\n\u2022 The coloured circle
-    shows/hides a graph; <b>color</b> changes its colour.\n\n<b><color=#8fb8ff>Things
-    to try</color></b>\n<color=#ffd27f>y = x^2</color>   <color=#ffd27f>x^2 + y^2
-    = 9</color>   <color=#ffd27f>y < sin(x)</color>\n<color=#ffd27f>r = 1 + cos(\u03B8)</color>  
-    <color=#ffd27f>(cos(t), sin(t))</color>\n<color=#ffd27f>a = 2</color>  \u2192
-    a slider; use <i>a</i> in other rows\n<color=#ffd27f>f(x) = x^3</color>, then
-    <color=#ffd27f>y = f'(x)</color>\n<color=#ffd27f>\u222B_0^1 x^2 dx</color>  
-    <color=#ffd27f>\u03A3_{n=1}^{10} n</color>   <color=#ffd27f>mean([1...10])</color>\n<b>+
+    explore graphs together, everyone in the instance sees the same board.\n\n<b><color=#8fb8ff>Getting
+    started</color></b>\n1) Tap a row in the <b>Expressions</b> list to select it,
+    then type on the keypad below the board.\n2) <b>123</b>, <b>abc</b> and <b>func</b>
+    switch keypad pages. Or tap <i>Tap to type with keyboard</i> to use VRChat's
+    keyboard.\n3) <b>Enter</b> adds a row, <b>DEL</b> on an empty row removes it,
+    <b>\u2191 \u2193</b> move between rows.\n4) The coloured circle shows/hides a
+    graph; <b>color</b> changes its colour.\n\n<b><color=#8fb8ff>Things to try</color></b>\n<color=#ffd27f>y
+    = x^2</color>   <color=#ffd27f>x^2 + y^2 = 9</color>   <color=#ffd27f>y < sin(x)</color>\n<color=#ffd27f>r
+    = 1 + cos(\u03B8)</color>   <color=#ffd27f>(cos(t), sin(t))</color>\n<color=#ffd27f>a
+    = 2</color>  \u2192 a slider; use <i>a</i> in other rows\n<color=#ffd27f>f(x)
+    = x^3</color>, then <color=#ffd27f>y = f'(x)</color>\n<color=#ffd27f>\u222B_0^1
+    x^2 dx</color>   <color=#ffd27f>\u03A3_{n=1}^{10} n</color>   <color=#ffd27f>mean([1...10])</color>\n<b>+
     table</b>, then <color=#ffd27f>y_1 ~ m x_1 + b</color> for a best-fit line\n\n<b><color=#8fb8ff>Graph
     controls</color></b>\nDrag the graph to pan \xB7 <b>+ / \u2212</b> zoom \xB7
     <b>\u2302</b> reset view\n<b>C</b> complex numbers \xB7 <b>RAD/DEG</b> angle
@@ -33351,7 +33349,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294308077
   m_fontColor: {r: 0.93, g: 0.94, b: 0.96, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -33364,7 +33362,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -44733,7 +44731,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294308077
   m_fontColor: {r: 0.93, g: 0.94, b: 0.96, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -44746,7 +44744,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -60380,6 +60378,112 @@ MonoBehaviour:
   serializedPublicVariablesBytesString: Ai8AAAAAATIAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAFQAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AAAAAAAYBAAAAAAAAACcBBAAAAHQAeQBwAGUAAWgAAABTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEcAZQBuAGUAcgBpAGMALgBMAGkAcwB0AGAAMQBbAFsAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4ALgBJAG4AdABlAHIAZgBhAGMAZQBzAC4ASQBVAGQAbwBuAFYAYQByAGkAYQBiAGwAZQAsACAAVgBSAEMALgBVAGQAbwBuAC4AQwBvAG0AbQBvAG4AXQBdACwAIABtAHMAYwBvAHIAbABpAGIAAQEJAAAAVgBhAHIAaQBhAGIAbABlAHMALwEAAAABaAAAAFMAeQBzAHQAZQBtAC4AQwBvAGwAbABlAGMAdABpAG8AbgBzAC4ARwBlAG4AZQByAGkAYwAuAEwAaQBzAHQAYAAxAFsAWwBWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAEkAbgB0AGUAcgBmAGEAYwBlAHMALgBJAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlACwAIABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgBdAF0ALAAgAG0AcwBjAG8AcgBsAGkAYgABAAAABgEAAAAAAAAAAi8CAAAAAUkAAABWAFIAQwAuAFUAZABvAG4ALgBDAG8AbQBtAG8AbgAuAFUAZABvAG4AVgBhAHIAaQBhAGIAbABlAGAAMQBbAFsAUwB5AHMAdABlAG0ALgBJAG4AdAAzADIALAAgAG0AcwBjAG8AcgBsAGkAYgBdAF0ALAAgAFYAUgBDAC4AVQBkAG8AbgAuAEMAbwBtAG0AbwBuAAIAAAAGAgAAAAAAAAAnAQQAAAB0AHkAcABlAAEXAAAAUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwAsACAAbQBzAGMAbwByAGwAaQBiACcBCgAAAFMAeQBtAGIAbwBsAE4AYQBtAGUAAR8AAABfAF8AXwBVAGQAbwBuAFMAaABhAHIAcABCAGUAaABhAHYAaQBvAHUAcgBWAGUAcgBzAGkAbwBuAF8AXwBfACcBBAAAAHQAeQBwAGUAARYAAABTAHkAcwB0AGUAbQAuAEkAbgB0ADMAMgAsACAAbQBzAGMAbwByAGwAaQBiABcBBQAAAFYAYQBsAHUAZQACAAAABwUHBQcF
   publicVariablesUnityEngineObjects: []
   publicVariablesSerializationDataFormat: 0
+--- !u!1 &4435642120965743758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6961291316266425590}
+  - component: {fileID: 2116060670645243590}
+  - component: {fileID: 5733282683872851665}
+  - component: {fileID: 8791743886492706755}
+  m_Layer: 0
+  m_Name: Plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6961291316266425590
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4435642120965743758}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: -0.7071068, w: 0}
+  m_LocalPosition: {x: 1.448, y: 0.406, z: 0.0096}
+  m_LocalScale: {x: 0.02, y: 0.02, z: 0.02}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 8033088425379764524}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: -180}
+--- !u!33 &2116060670645243590
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4435642120965743758}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &5733282683872851665
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4435642120965743758}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 4ea18e366beb20d429ad4ad5ea6037f9, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &8791743886492706755
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4435642120965743758}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &4466933232172881100
 GameObject:
   m_ObjectHideFlags: 0
@@ -110408,7 +110512,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 2
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7361341185184465147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115411,7 +115515,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -115438,7 +115542,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 2
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5639230700694227885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117462,7 +117566,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 2
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7669305463272320150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122668,7 +122772,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4288566298
   m_fontColor: {r: 0.1, g: 0.33, b: 0.62, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -122681,7 +122785,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
